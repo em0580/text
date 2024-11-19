@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google 認證與會員註冊</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #6e7cfd, #8a9eff);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+            overflow: hidden;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.2);
+            max-width: 420px;
+            width: 100%;
+            backdrop-filter: blur(15px);
+            /* 更強的模糊效果 */
+            animation: fadeIn 1s ease-out;
+            /* 加入淡入動畫 */
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 32px;
+            color: #fff;
+            font-weight: 700;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.6);
+            line-height: 1.3;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 18px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            background-color: #fff;
+            color: #333;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: #4285F4;
+            outline: none;
+            box-shadow: 0 0 18px rgba(66, 133, 244, 0.5);
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(45deg, #4285F4, #357ae8);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 10px 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #357ae8, #4285F4);
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #google-login-btn {
+            background-color: #db4437;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #google-login-btn:hover {
+            background-color: #c1351d;
+            transform: translateY(-2px);
+        }
+
+        #user-info {
+            margin-top: 20px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
+            color: #333;
+            display: none;
+            text-align: center;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #user-info img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            border: 3px solid #289f75;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        #user-info img:hover {
+            transform: scale(1.1);
+        }
+
+        #user-info h2 {
+            font-size: 26px;
+            margin-bottom: 10px;
+            color: #444;
+        }
+
+        #user-info p {
+            font-size: 16px;
+            color: #777;
+        }
+
+        #last-login-time {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #999;
+        }
+
+        #logout-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #logout-btn:hover {
+            background-color: #d32f2f;
+            transform: translateY(-3px);
+        }
+
+        #logout-btn:active {
+            transform: translateY(1px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Google認證與會員註冊</h1>
+
+        <!-- 登入與註冊表單 -->
+        <div id="login-form">
+            <input type="email" id="email" placeholder="請輸入電子郵件" required>
+            <input type="password" id="password" placeholder="請輸入密碼" required>
+
+            <button id="login-btn">登入</button>
+            <button id="register-btn">註冊</button>
+            <button id="google-login-btn">使用 Google 登入</button>
+        </div>
+
+        <!-- 用戶資料顯示卡片 -->
+        <div id="user-info">
+            <img id="profile-pic" src="" alt="Profile Picture">
+            <h2 id="user-name"></h2>
+            <p id="user-email"></p>
+            <p id="last-login-time"></p> <!-- 顯示最後登入時間 -->
+            <button id="logout-btn">登出</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signInWithPopup,
+            GoogleAuthProvider,
+            signOut,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+        import {
+            getDatabase,
+            ref,
+            set,
+            onValue
+        } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+        // Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyB4DwEUsYBVWZIy68_SDJw8Z3_NAswNl-M",
+            authDomain: "webprogramming-e9cb9.firebaseapp.com",
+            databaseURL: "https://webprogramming-e9cb9-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "webprogramming-e9cb9",
+            storageBucket: "webprogramming-e9cb9.firebasestorage.app",
+            messagingSenderId: "1047928669829",
+            appId: "1:1047928669829:web:af333892985b3a3e6c4bec"
+        };
+
+        // 初始化 Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        // 登出功能
+        document.getElementById("logout-btn").addEventListener("click", () => {
+            signOut(auth)
+                .then(() => {
+                    document.getElementById("user-info").style.display = "none";
+                    document.getElementById("login-form").style.display = "block"; // 顯示登入表單
+                })
+                .catch((error) => {
+                    alert("登出失敗：" + error.message);
+                });
+        });
+
+        // 顯示用戶資料
+        function displayUserInfo(user, lastLoginTime) {
+            document.getElementById("user-info").style.display = "block";
+            document.getElementById("login-form").style.display = "none"; // 隱藏登入表單
+            document.getElementById("profile-pic").src = user.photoURL || "https://via.placeholder.com/80";
+            document.getElementById("user-name").textContent = user.displayName || "匿名使用者";
+            document.getElementById("user-email").textContent = user.email;
+            document.getElementById("last-login-time").textContent = `最後登入時間：${lastLoginTime}`;
+        }
+
+        // 儲存用戶資料至 Realtime Database
+        function saveUserInfoToDatabase(user, lastLoginTime) {
+            const userRef = ref(database, `users/${user.uid}`);
+            set(userRef, {
+                displayName: user.displayName || "匿名使用者",
+                email: user.email,
+                photoURL: user.photoURL || "",
+                lastLoginTime: lastLoginTime
+            }).then(() => {
+                displayUserInfo(user, lastLoginTime);
+            }).catch((error) => {
+                alert("資料儲存失敗：" + error.message);
+            });
+        }
+
+        // 登入與註冊共用的處理邏輯
+        const handleAuthAction = async (email, password, action, buttonElement) => {
+            if (!email || !password) {
+                alert("請輸入有效的電子郵件和密碼！");
+                return;
+            }
+
+            buttonElement.disabled = true;
+            buttonElement.textContent = action === 'login' ? "登入中..." : "註冊中...";
+
+            try {
+                if (action === 'login') {
+                    // 檢查該電子郵件是否已註冊
+                    const userExists = await checkIfUserExists(email);
+                    if (!userExists) {
+                        alert("該電子郵件尚未註冊，請先註冊！");
+                        return;
+                    }
+                    // 如果已註冊，執行登入
+                    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    const now = new Date().toISOString();
+                    saveUserInfoToDatabase(user, now);
+                } else if (action === 'register') {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    const now = new Date().toISOString();
+                    saveUserInfoToDatabase(user, now);
+                }
+            } catch (error) {
+                handleAuthError(error, action);
+            } finally {
+                buttonElement.disabled = false;
+                buttonElement.textContent = action === 'login' ? "登入" : "註冊";
+            }
+        };
+
+        // 檢查使用者是否已存在於資料庫
+        const checkIfUserExists = async (email) => {
+            const userRef = ref(database, 'users');
+            const snapshot = await get(userRef);
+            const users = snapshot.val();
+
+            // 檢查電子郵件是否已註冊
+            for (let uid in users) {
+                if (users[uid].email === email) {
+                    return true; // 找到使用者，表示該電子郵件已註冊
+                }
+            }
+            return false; // 沒找到使用者，表示該電子郵件未註冊
+        };
+
+
+        const handleAuthError = (error, action) => {
+            console.log(error);  // 用於調試，查看錯誤物件
+
+            let errorMessage = action === 'login' ? "登入失敗，請稍後再試。" : "註冊失敗，請稍後再試。";
+
+            switch (error.code) {
+                case "auth/wrong-password":
+                    errorMessage = "密碼錯誤，請重新輸入。"; // 顯示密碼錯誤
+                    break;
+                case "auth/user-not-found":
+                    errorMessage = "該電子郵件未註冊，請先註冊帳號。"; // 顯示未註冊的錯誤
+                    break;
+                case "auth/invalid-email":
+                    errorMessage = "電子郵件格式無效，請檢查輸入。";
+                    break;
+                case "auth/weak-password":
+                    errorMessage = "密碼強度不足，請輸入至少六個字元。";
+                    break;
+                case "auth/too-many-requests":
+                    errorMessage = "登入失敗次數過多，請稍後再試。";
+                    break;
+                case "auth/invalid-login-credentials":
+                    errorMessage = "登入失敗，請確認電子郵件是否正確或註冊新帳號。"; // 顯示註冊新帳號提示
+                    break;
+            }
+
+            alert(errorMessage);  // 顯示錯誤訊息
+        };
+
+
+
+
+
+        // 登入功能
+        document.getElementById("login-btn").addEventListener("click", async () => {
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+            const loginButton = document.getElementById("login-btn");
+
+            if (!email || !password) {
+                alert("請輸入有效的電子郵件和密碼！");
+                return;
+            }
+
+            loginButton.disabled = true;
+            loginButton.textContent = "登入中...";
+
+            try {
+                // 嘗試登入
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // 成功登入後儲存用戶資料
+                const now = new Date().toISOString();
+                saveUserInfoToDatabase(user, now);
+            } catch (error) {
+                handleAuthError(error, 'login'); // 呼叫錯誤處理函數
+            } finally {
+                loginButton.disabled = false;
+                loginButton.textContent = "登入";
+            }
+        });
+
+
+
+        // 註冊功能
+        document.getElementById("register-btn").addEventListener("click", async () => {
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+            const registerButton = document.getElementById("register-btn");
+
+            await handleAuthAction(email, password, 'register', registerButton);
+        });
+
+
+
+
+        // Google 登入功能
+        document.getElementById("google-login-btn").addEventListener("click", async () => {
+            const provider = new GoogleAuthProvider();
+
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+
+                // 儲存用戶資料
+                const now = new Date().toISOString();
+                saveUserInfoToDatabase(user, now);
+            } catch (error) {
+                alert("Google 登入失敗：" + error.message);
+            }
+        });
+
+        // 監聽用戶登入狀態
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const now = new Date().toISOString();
+                saveUserInfoToDatabase(user, now);
+            } else {
+                document.getElementById("login-form").style.display = "block";
+                document.getElementById("user-info").style.display = "none";
+            }
+        });
+    </script>
+
+</body>
+
+</html>
