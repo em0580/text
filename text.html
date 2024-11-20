@@ -320,37 +320,57 @@
         }
 
 
-        // 登入表單處理
-        document.getElementById("loginForm").addEventListener("submit", function (event) {
-            event.preventDefault();
+// 登入表單處理
+document.getElementById("loginForm").addEventListener("submit", function (event) {
+    event.preventDefault();
 
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-            signInWithEmailAndPassword(auth, email, password)
-                .then(userCredential => {
-                    console.log("登入成功！", userCredential);
-                })
-                .catch(handleLoginError);  // 呼叫錯誤處理函數
+    // 進行登入操作
+    signInWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+            // 登入成功的處理
+            console.log("登入成功！", userCredential);
+            // 可以在這裡執行登入後的操作，例如顯示用戶資料或轉跳頁面等
+        })
+        .catch(error => {
+            // 捕獲錯誤並呼叫錯誤處理函數
+            handleLoginError(error);
         });
+});
 
 
 
 
         // 登入錯誤處理
-        function handleLoginError(error) {
-            console.log(error);  // 輸出錯誤物件查看其結構
-            const errorMessages = {
-                'auth/invalid-email': "無效的電子郵件格式！",
-                'auth/user-not-found': "找不到此用戶！",  // 如果使用者不存在，顯示此訊息
-                'auth/wrong-password': "密碼錯誤，請再試一次！",  // 密碼錯誤
-                'auth/too-many-requests': "嘗試次數過多，請稍後再試！",
-                'auth/invalid-login-credentials': "無效的登入憑證，請確認電子郵件和密碼！"  // 檢查登入憑證
-            };
+ function handleLoginError(error) {
+    console.log(error);  // 輸出錯誤物件查看其結構
+    const errorMessages = {
+        'auth/invalid-email': "無效的電子郵件格式！",
+        'auth/user-not-found': "找不到此用戶！",  // 如果使用者不存在，顯示此訊息
+        'auth/wrong-password': "密碼錯誤，請再試一次！",  // 密碼錯誤
+        'auth/too-many-requests': "嘗試次數過多，請稍後再試！",
+        'auth/invalid-login-credentials': "無效的登入憑證，請確認電子郵件和密碼！"  // 檢查登入憑證
+    };
 
-            // 判斷是否有符合的錯誤代碼，並顯示提示訊息
-            alert(errorMessages[error.code] || error.message || "登入發生錯誤，請稍後再試！");
-        }
+    // 判斷錯誤代碼
+    let errorMessage = "登入發生錯誤，請稍後再試！";
+    
+    if (error.code === 'auth/invalid-email') {
+        errorMessage = "無效的電子郵件格式！";
+    } else if (error.code === 'auth/wrong-password') {
+        errorMessage = "密碼錯誤，請再試一次！";
+    } else if (error.code === 'auth/user-not-found') {
+        errorMessage = "找不到此用戶！";
+    } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = "嘗試次數過多，請稍後再試！";
+    } else if (error.code === 'auth/invalid-login-credentials') {
+        errorMessage = "無效的登入憑證，請確認電子郵件和密碼！";
+    }
+
+    alert(errorMessage);
+ }
 
 
 
