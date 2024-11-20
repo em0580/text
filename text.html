@@ -294,19 +294,29 @@
                 });
         });
 
-        // 註冊表單處理
-        document.getElementById("registrationForm").addEventListener("submit", function (event) {
-            event.preventDefault();
 
-            const email = document.getElementById("registerEmail").value;
-            const password = document.getElementById("registerPassword").value;
+// 註冊表單處理
+document.getElementById("registerForm").addEventListener("submit", function (event) {
+    event.preventDefault();
 
-            createUserWithEmailAndPassword(auth, email, password)
-                .then(userCredential => {
-                    console.log("註冊成功！", userCredential);
-                })
-                .catch(handleRegistrationError);  // 呼叫錯誤處理函數
+    const email = document.getElementById("registerEmail").value;
+    const password = document.getElementById("registerPassword").value;
+
+    // 顯示加載動畫
+    document.getElementById("register-loading-spinner").style.display = "flex";
+
+    createUserWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+            console.log("註冊成功！", userCredential);
+            // 隱藏加載動畫
+            document.getElementById("register-loading-spinner").style.display = "none";
+        })
+        .catch(error => {
+            handleRegisterError(error);  // 處理錯誤
+            // 隱藏加載動畫
+            document.getElementById("register-loading-spinner").style.display = "none";
         });
+});
 
         // 註冊錯誤處理
         function handleRegistrationError(error) {
@@ -324,19 +334,23 @@
 document.getElementById("loginForm").addEventListener("submit", function (event) {
     event.preventDefault();
 
+    // 取得 email 和 password
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    // 進行登入操作
+    // 顯示加載動畫
+    document.getElementById("loading-spinner").style.display = "flex";
+
     signInWithEmailAndPassword(auth, email, password)
         .then(userCredential => {
-            // 登入成功的處理
             console.log("登入成功！", userCredential);
-            // 可以在這裡執行登入後的操作，例如顯示用戶資料或轉跳頁面等
+            // 隱藏加載動畫
+            document.getElementById("loading-spinner").style.display = "none";
         })
         .catch(error => {
-            // 捕獲錯誤並呼叫錯誤處理函數
-            handleLoginError(error);
+            handleLoginError(error);  // 處理錯誤
+            // 隱藏加載動畫
+            document.getElementById("loading-spinner").style.display = "none";
         });
 });
 
