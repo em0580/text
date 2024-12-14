@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>得秘渡假村 - RFID手環服務</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* 讓整個 body 以 flexbox 方式佈局 */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            /* 設定最小高度為 100vh */
+            margin: 0;
+            /* 去掉 margin */
+            background-color: #f4f6f8;
+            /* 更清新的背景顏色 */
+            font-family: 'Arial', sans-serif;
+            /* 調整字體為無襯線字體 */
+        }
+
+        /* 讓 footer 固定在最底部 */
+        footer {
+            margin-top: auto;
+            /* 自動增加上邊距以推送 footer 到底部 */
+            background-color: #343a40;
+            /* 深色背景 */
+            color: white;
+            /* 文字顏色 */
+            padding: 30px 20px;
+            /* 增加內邊距，讓區塊更寬敞 */
+            text-align: center;
+            /* 文字置中 */
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            /* 添加陰影讓 footer 更立體 */
+        }
+
+        footer .social-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            /* 增加間距，避免按鈕擁擠 */
+            margin-top: 20px;
+            /* 上方間距 */
+        }
+
+        footer .social-buttons a {
+            font-size: 28px;
+            /* 更大圖標 */
+            color: white;
+            transition: transform 0.3s ease, color 0.3s ease;
+            /* 加入顏色變化 */
+        }
+
+        footer .social-buttons a:hover {
+            transform: scale(1.2);
+            /* 放大效果 */
+            color: #ffcc00;
+            /* 鼠標懸停時改變顏色 */
+        }
+
+
+
+/* 設置輪播圖容器的最大高度，防止圖片過大 */
+.carousel-inner {
+    position: relative;
+    max-height: 500px; /* 設定最大高度 */
+    overflow: hidden; /* 防止超出容器的圖片顯示 */
+}
+
+/* 圖片樣式，保持圖片比例且填滿容器 */
+.carousel-item img {
+    width: 100%;
+    height: auto;
+    object-fit: cover; /* 保持圖片比例並填滿容器 */
+}
+
+/* 輪播按鈕樣式，確保其不被隱藏且樣式簡潔 */
+.carousel-control-prev, .carousel-control-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5; /* 保證按鈕在圖片上方 */
+
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+}
+
+.carousel-control-prev-icon, .carousel-control-next-icon {
+    filter: invert(1); /* 白色箭頭 */
+}
+
+
+
+/* 卡片樣式，確保卡片不會與輪播圖重疊 */
+.card {
+    position: relative;
+    z-index: 10; /* 確保卡片在輪播圖上方 */
+    margin-top: 20px; /* 調整與圖片的間距 */
+}
+
+        /* 首頁背景區塊 (hero section) */
+        #hero {
+            background-color: #007bff;
+            /* 藍色背景 */
+            color: white;
+            padding: 80px 20px;
+            /* 更大的內邊距 */
+            text-align: center;
+            border-radius: 15px;
+            /* 圓角效果 */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            /* 添加陰影 */
+        }
+
+        #hero h1 {
+            font-size: 3.5rem;
+            /* 增大字體大小 */
+            font-weight: 700;
+            /* 加粗文字 */
+            margin-bottom: 30px;
+            /* 下邊距 */
+        }
+
+        #hero p {
+            font-size: 1.25rem;
+            /* 較大的文字 */
+            margin-bottom: 30px;
+        }
+
+        #hero .btn {
+            background-color: #28a745;
+            /* 按鈕顏色 */
+            border: none;
+            padding: 12px 40px;
+            font-size: 1.2rem;
+            /* 增大字體 */
+            border-radius: 25px;
+            /* 圓角 */
+            color: white;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #hero .btn:hover {
+            background-color: #218838;
+            /* hover 顏色 */
+            transform: translateY(-5px);
+            /* 按鈕上移效果 */
+        }
+
+        /* 聊天機器人按鈕 */
+        #chatbot-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 35px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        #chatbot-button:hover {
+            transform: scale(1.1);
+            /* 放大效果 */
+        }
+
+
+        /* 訊息框樣式 */
+        #chatbox {
+            width: 100%;
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            /* 訊息間隔 */
+        }
+
+        /* 訊息樣式 */
+        .message {
+            padding: 12px;
+            border-radius: 20px;
+            max-width: 70%;
+            /* 設定訊息框最大寬度 */
+            word-wrap: break-word;
+            margin: 5px 0;
+        }
+
+        /* 使用者訊息 */
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+            /* 使用者訊息靠右 */
+            border-bottom-left-radius: 0;
+        }
+
+        /* 機器人訊息 */
+        .bot-message {
+            background-color: #e6e6e6;
+            color: #333;
+            align-self: flex-start;
+            /* 機器人訊息靠左 */
+            border-bottom-right-radius: 0;
+        }
+
+        /* 輸入區樣式 */
+        .input-group {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            padding: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 25px;
+            border: 1px solid #ccc;
+        }
+
+        #send-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #send-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* 聊天框背景 */
+        #chatbot {
+            display: none;
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 320px;
+            height: 500px;
+            background-color: white;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            z-index: 999;
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        /* 聊天機器人標題 */
+        #chatbot header {
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            font-size: 18px;
+            text-align: center;
+            font-weight: bold;
+            border-bottom: 2px solid #0056b3;
+        }
+
+        /* 使 chatbox 自動捲動 */
+        #chatbox {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+
+        /* 調整卡片外觀 */
+        #projects .card {
+            border-radius: 16px;
+            /* 卡片圓角 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            /* 陰影 */
+            transition: transform 0.3s ease;
+            /* 鼠標懸停時卡片放大 */
+        }
+
+        #projects .card:hover {
+            transform: translateY(-5px);
+            /* 放大效果 */
+        }
+
+        #projects .card-img-top {
+            border-radius: 10px 10px 0 0;
+            /* 圓角圖片 */
+        }
+
+        /* 按鈕樣式 */
+        #projects .btn-primary {
+            background-color: #007bff;
+            /* 按鈕顏色 */
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 25px;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease;
+        }
+
+        #projects .btn-primary:hover {
+            background-color: #0056b3;
+            /* hover 顏色 */
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">得秘渡假村</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link" href="#features">服務特色</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#how-it-works">操作說明</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#reservation">即時預訂</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#login">會員登入</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#reviews">顧客評價</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#contact">聯絡我們</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mt-5">
+    <main class="container mt-4">
+        <section id="carousel" class="my-5">
+            <h2 class="text-center">探索得秘渡假村</h2>
+            <div id="resortCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="https://pledis.co.kr/resources/_data/file/bbsData/1731417794673356c22b4ef.jpg" class="d-block w-100" alt="tws炅潣">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://pledis.co.kr/resources/_data/file/bbsData/173141767267335648e226b.jpg" class="d-block w-100" alt="tws志熏">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://pledis.co.kr/resources/_data/file/bbsData/171863712066705240901c7.jpg" class="d-block w-100" alt="tws英宰">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://kozofficial.com/resources/discography/ce3efe1a-a2d7-49fe-8250-a969330d68bf.jpg" class="d-block w-100" alt="bnd泰山">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://kozofficial.com/resources/discography/fe2e385f-b171-4f09-9d3a-31a352af45a6.jpg" class="d-block w-100" alt="bnd雲鶴">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://kozofficial.com/resources/discography/43141e65-1913-4df7-acd3-6d755c34e2d6.jpg" class="d-block w-100" alt="bnd成淏">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://pledis.co.kr/resources/_data/file/bbsData/1704642815659ac8ff6a736.jpg" class="d-block w-100" alt="tws">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://kozofficial.com/resources/discography/e65abe5d-7100-460b-bdaa-c8459ca6fed2.jpg" class="d-block w-100" alt="bnd">
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#resortCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">上一張</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#resortCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">下一張</span>
+                </button>
+            </div>
+        </section>
+    </main>
+    
+        <section id="projects" class="py-5 bg-light">
+            <div class="container">
+                <h2 class="text-center mb-5">作品展示</h2>
+                <div class="row">
+                    <!-- 作品1 -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm border-0 rounded-4" style="height: 100%;">
+                            <img src="photo/194585_0.jpg" class="card-img-top" alt="專案1"
+                                style="height: 200px; object-fit: cover; border-radius: 10px 10px 0 0;">
+                            <div class="card-body">
+                                <h5 class="card-title">進場及出場紀錄</h5>
+                                <a href="RFID 進出場顯示.html" class="btn btn-primary">進入</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 作品2 -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm border-0 rounded-4" style="height: 100%;">
+                            <img src="photo/194586_0.jpg" class="card-img-top" alt="專案2"
+                                style="height: 200px; object-fit: cover; border-radius: 10px 10px 0 0;">
+                            <div class="card-body">
+                                <h5 class="card-title">儲值</h5>
+                                <a href="RFID 儲值功能.html" class="btn btn-primary">進入</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 作品3 可以依需求加 -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm border-0 rounded-4" style="height: 100%;">
+                            <img src="photo/194587_0.jpg" class="card-img-top" alt="專案3"
+                                style="height: 200px; object-fit: cover; border-radius: 10px 10px 0 0;">
+                            <div class="card-body">
+                                <h5 class="card-title">消費</h5>
+                                <a href="RFID 消費功能.html" class="btn btn-primary">進入</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 作品4 可以依需求加 -->
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm border-0 rounded-4" style="height: 100%;">
+                            <img src="photo/194588_0.jpg" class="card-img-top" alt="專案4"
+                                style="height: 200px; object-fit: cover; border-radius: 10px 10px 0 0;">
+                            <div class="card-body">
+                                <h5 class="card-title">查詢餘額</h5>
+                                <a href="RFID 查詢餘額功能.html" class="btn btn-primary">進入</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- 其他內容保持不變，直接添加至主頁面 -->
+    </main>
+
+    <footer class="bg-dark text-white text-center position-relative">
+        <p>© 2024 得秘渡假村. 保留所有權利。</p>
+        <p>聯絡方式: info@example.com</p>
+        <div class="social-buttons">
+            <a href="https://www.facebook.com" target="_blank" class="text-white me-2"><i
+                    class="bi bi-facebook"></i></a>
+            <a href="https://www.instagram.com" target="_blank" class="text-white me-2"><i
+                    class="bi bi-instagram"></i></a>
+            <a href="https://www.twitter.com" target="_blank" class="text-white"><i class="bi bi-twitter"></i></a>
+        </div>
+    </footer>
+
+
+
+
+    <!-- 聊天機器人 -->
+    <div id="chatbot">
+        <header>智能客服</header>
+        <div id="chatbox"></div>
+        <div class="input-group p-2">
+            <input type="text" id="user-input" class="form-control" placeholder="請問有什麼問題？" />
+            <button id="send-btn" onclick="sendMessage()">發送</button>
+        </div>
+    </div>
+    <div id="chatbot-button" onclick="toggleChatbot()">
+        <i class="fas fa-comments"></i>
+    </div>
+
+    <script>
+        // 開啟/關閉聊天框
+        function toggleChatbot() {
+            const chatbot = document.getElementById("chatbot");
+            chatbot.style.display = (chatbot.style.display === "none") ? "flex" : "none";
+        }
+
+        // 發送訊息並顯示回應
+        async function sendMessage() {
+            const userInput = document.getElementById("user-input").value;
+            if (userInput.trim() === "") return;
+
+            appendMessage(userInput, "user-message");
+            document.getElementById("user-input").value = "";
+
+            const response = await getDialogflowResponse(userInput);
+            appendMessage(response, "bot-message");
+        }
+
+        // 顯示訊息
+        function appendMessage(message, sender) {
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", sender);
+            messageDiv.textContent = message;
+            document.getElementById("chatbox").appendChild(messageDiv);
+            document.getElementById("chatbox").scrollTop = document.getElementById("chatbox").scrollHeight;
+        }
+
+        // 呼叫 Dialogflow API
+        async function getDialogflowResponse(userInput) {
+            const projectId = "YOUR_PROJECT_ID";  // 替換為您的 Dialogflow 專案 ID
+            const sessionId = "12345";  // 您可以為每次會話生成唯一的 sessionId
+            const languageCode = "zh-Hant";  // 中文語言代碼
+
+            const response = await fetch(`https://dialogflow.googleapis.com/v2/projects/${projectId}/agent/sessions/${sessionId}:detectIntent`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer YOUR_ACCESS_TOKEN`,  // 替換為您的 OAuth 2.0 訪問令牌
+                },
+                body: JSON.stringify({
+                    queryInput: {
+                        text: {
+                            text: userInput,
+                            languageCode: languageCode
+                        }
+                    }
+                })
+            });
+
+            const data = await response.json();
+            const botResponse = data.queryResult.fulfillmentText;
+            return botResponse;
+        }
+    </script>
+
+    <!-- 引入 Lottie 動畫和 Bootstrap 輔助功能 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.6/lottie.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

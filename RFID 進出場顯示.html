@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RFID 模擬系統</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f7fb;
+      color: #333;
+      margin: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: fadeInBody 1s ease-in-out;
+    }
+
+    h1 {
+      color: #3b5998;
+      font-size: 2rem;
+      margin-bottom: 20px;
+      animation: fadeInText 1.5s ease-in-out;
+    }
+
+    h2 {
+      color: #3b5998;
+      margin-top: 30px;
+      font-size: 1.5rem;
+      animation: fadeInText 1.5s ease-in-out;
+    }
+
+    input,
+    button {
+      font-size: 1rem;
+      padding: 12px;
+      margin: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      transition: all 0.3s ease-in-out;
+    }
+
+    input {
+      width: 300px;
+      max-width: 80%;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease-in-out;
+    }
+
+    input:focus {
+      border-color: #3b5998;
+      background-color: #f1f8ff;
+      box-shadow: 0 2px 8px rgba(59, 89, 152, 0.5);
+    }
+
+    button {
+      background-color: #3b5998;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #2d4373;
+      transform: translateY(-5px);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    #log {
+      margin-top: 20px;
+      width: 90%;
+      max-width: 600px;
+      padding: 10px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      animation: fadeInLog 1s ease-in-out;
+    }
+
+    #log p {
+      padding: 8px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+      animation: fadeInLogText 1s ease-in-out;
+    }
+
+    #log p:nth-child(odd) {
+      background-color: #e8eff7;
+    }
+
+    #log p span {
+      font-weight: bold;
+      color: #3b5998;
+    }
+
+    /* Animation keyframes */
+    @keyframes fadeInBody {
+      0% {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInText {
+      0% {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInLog {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInLogText {
+      0% {
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    /* 返回首頁按鈕樣式 */
+    .back-home-btn {
+      background-color: #28a745;
+      /* 綠色背景 */
+      color: white;
+      padding: 12px 20px;
+      /* 上下 12px，左右 20px */
+      font-size: 1.2rem;
+      margin: 30px 10px 10px;
+      /* 更新 margin 值 */
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, background-color 0.3s;
+      width: auto;
+      /* 使寬度根據內容自適應 */
+    }
+
+    .back-home-btn:hover {
+      background-color: #218838;
+      /* 深綠色 */
+      transform: translateY(-5px);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .back-home-btn:active {
+      transform: translateY(2px);
+    }
+  </style>
+</head>
+
+<body>
+  <h1>RFID 進出場顯示</h1>
+  <input type="text" id="rfidInput" placeholder="輸入 RFID ID">
+  <button id="simulate">模擬感應</button>
+  <h2>感應記錄</h2>
+  <div id="log"></div>
+  <div class="container"></div>
+
+  <!-- 返回首頁按鈕 -->
+  <button class="back-home-btn" onclick="window.location.href='index.html';">返回首頁</button>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
+    import { getDatabase, ref, set, push, onValue, query, orderByChild, equalTo, limitToLast, get } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-database.js";
+
+    // Firebase 配置
+    const firebaseConfig = {
+      apiKey: "AIzaSyCGRhmZyeaBCIRwoC-R2D0iiIx2zcXnky4",
+      authDomain: "david2463065-3fe00.firebaseapp.com",
+      databaseURL: "https://david2463065-3fe00-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "david2463065-3fe00",
+      storageBucket: "david2463065-3fe00.appspot.com",
+      messagingSenderId: "125089446047",
+      appId: "1:125089446047:web:3bf571c29b080ff896caaa"
+    };
+
+    // 初始化 Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // 通用函數：從資料庫取得資料
+    function fetchFromDatabase(refPath) {
+      const dbRef = ref(db, refPath);
+      return get(dbRef);
+    }
+
+    // 更新感應記錄顯示
+    function updateLog(logs) {
+      const logContainer = document.getElementById('log');
+      logContainer.innerHTML = "";
+      if (!logs) return;
+      const logArray = Object.values(logs).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      logArray.forEach(log => {
+        logContainer.innerHTML += `<p><span>${log.id}</span> - ${log.status} - ${log.timestamp}</p>`;
+      });
+    }
+
+    // 驗證 RFID ID 格式（數字和字母）
+    function validateRFID(rfidId) {
+      const validRFIDPattern = /^[A-Za-z0-9]+$/;
+      return validRFIDPattern.test(rfidId);
+    }
+
+    // 模擬 RFID 感應邏輯
+    document.getElementById('simulate').addEventListener('click', async () => {
+      const rfidId = document.getElementById('rfidInput').value.trim();
+
+      // 驗證 RFID ID 格式
+      if (!rfidId || !validateRFID(rfidId)) {
+        alert("請輸入有效的 RFID ID！ID 必須包含數字和英文！");
+        return;
+      }
+
+      console.log("RFID ID:", rfidId); // 調試：查看輸入的 RFID ID
+
+      try {
+        // 1. 檢查有效 RFID
+        const validRFIDsSnapshot = await fetchFromDatabase('valid_rfid');
+        const validRFIDs = validRFIDsSnapshot.val() || {};
+
+        // 如果 valid_rfid 節點不存在，創建一個空的 valid_rfid 節點
+        if (!validRFIDs[rfidId]) {
+          // 2. 添加新的有效 RFID ID
+          await set(ref(db, 'valid_rfid/' + rfidId), true);
+          console.log(`新增有效 RFID ID: ${rfidId}`);
+        }
+
+        // 3. 查詢此 RFID ID 的最後一筆記錄，決定是進場還是出場
+        const logQuery = query(ref(db, 'rfid_logs'), orderByChild('id'), equalTo(rfidId));
+        const logsSnapshot = await get(logQuery);
+        const logs = logsSnapshot.val();
+        let status = "進場"; // 默認為進場
+
+        if (logs) {
+          const logArray = Object.values(logs);
+          const lastLog = logArray[logArray.length - 1];
+          if (lastLog && lastLog.status === "進場") {
+            status = "出場"; // 如果最後一次是進場，則改為出場
+          }
+        }
+
+        // 4. 儲存新記錄
+        const timestamp = new Date().toISOString();
+        const newLogRef = push(ref(db, 'rfid_logs')); // 使用 push() 來確保每次都是新的紀錄
+        await set(newLogRef, { id: rfidId, status, timestamp });
+
+        alert(`RFID: ${rfidId} 已成功 ${status}`);
+      } catch (error) {
+        console.error("Error during RFID simulation:", error);
+        alert("系統發生錯誤，請稍後再試！");
+      }
+    });
+
+    // 實時顯示最新的記錄（限制 10 筆）
+    const logQuery = query(ref(db, 'rfid_logs'), limitToLast(10));
+    onValue(logQuery, (snapshot) => {
+      const logs = snapshot.val();
+      updateLog(logs);
+    });
+  </script>
+</body>
+
+</html>
