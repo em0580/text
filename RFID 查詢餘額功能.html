@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RFID 電子錢包 - 查詢餘額</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fb;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #4b6cb7;
+      font-size: 2.5rem;
+      margin-bottom: 40px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    input {
+      font-size: 1.2rem;
+      padding: 12px;
+      margin: 15px 0;
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+    }
+
+    button {
+      font-size: 1.2rem;
+      padding: 12px;
+      margin-top: 15px;
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      background-color: #4b6cb7;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    button:hover {
+      background-color: #3a5b92;
+    }
+
+    #balanceDisplay {
+      margin-top: 20px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #4b6cb7;
+    }
+
+    /* 返回首頁按鈕樣式 */
+    .back-home-btn {
+      background-color: #28a745;
+      /* 綠色背景 */
+      color: white;
+      padding: 12px 20px;
+      /* 上下 12px，左右 20px */
+      font-size: 1.2rem;
+      margin: 30px 10px 10px;
+      /* 更新 margin 值 */
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, background-color 0.3s;
+      width: auto;
+      /* 使寬度根據內容自適應 */
+    }
+
+    .back-home-btn:hover {
+      background-color: #218838;
+      /* 深綠色 */
+      transform: translateY(-5px);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .back-home-btn:active {
+      transform: translateY(2px);
+    }
+  </style>
+  <!-- SweetAlert2 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <h1>RFID 電子錢包 - 查詢餘額</h1>
+  <div class="container">
+    <input type="text" id="rfidInput" placeholder="輸入 RFID ID">
+    <button id="checkBalanceButton">查詢餘額</button>
+    <div id="balanceDisplay">當前餘額: 0 元</div> <!-- 顯示餘額 -->
+  </div>
+
+  <button class="back-home-btn" onclick="window.location.href='index.html';">返回首頁</button>
+
+  <!-- SweetAlert2 JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.17.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCGRhmZyeaBCIRwoC-R2D0iiIx2zcXnky4",
+      authDomain: "david2463065-3fe00.firebaseapp.com",
+      databaseURL: "https://david2463065-3fe00-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "david2463065-3fe00",
+      storageBucket: "david2463065-3fe00.appspot.com",
+      messagingSenderId: "125089446047",
+      appId: "1:125089446047:web:3bf571c29b080ff896caaa"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // 更新餘額顯示
+    function updateBalanceDisplay(balance) {
+      const balanceElement = document.getElementById('balanceDisplay');
+      if (balance !== null) {
+        balanceElement.textContent = `當前餘額: ${balance} 元`;
+      } else {
+        balanceElement.textContent = '此 RFID ID 不存在！';
+      }
+    }
+
+    document.getElementById('checkBalanceButton').addEventListener('click', async () => {
+      const rfidId = document.getElementById('rfidInput').value.trim();
+
+      if (!rfidId) {
+        Swal.fire({
+          icon: 'warning',
+          title: '輸入錯誤',
+          text: '請輸入有效的 RFID ID！'
+        });
+        return;
+      }
+
+      // 查詢卡片餘額
+      const balanceRef = ref(db, 'wallets/' + rfidId);
+      const snapshot = await get(balanceRef);
+
+      if (!snapshot.exists()) {
+        Swal.fire({
+          icon: 'error',
+          title: '查詢失敗',
+          text: '此 RFID 卡片不存在！'
+        });
+        updateBalanceDisplay(null);
+        return;
+      }
+
+      const currentBalance = snapshot.val().balance;
+
+      // 更新顯示
+      updateBalanceDisplay(currentBalance);
+      Swal.fire({
+        icon: 'success',
+        title: '查詢成功',
+        html: `<b>當前餘額:</b> ${currentBalance} 元`,
+        confirmButtonText: '確定'
+      });
+    });
+  </script>
+</body>
+
+</html>
